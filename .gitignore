@@ -1,4 +1,9 @@
 .R*
+<<<<<<< HEAD
 *.Rproj*
+=======
+*.Rproj
+>>>>>>> ae66a67a7eb8a4519239e7228e4c94e0430cae4e
 *.Rcheck
 .vscode
+.Rproj.user
