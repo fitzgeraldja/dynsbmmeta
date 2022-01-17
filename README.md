@@ -7,6 +7,7 @@ This builds on the CRAN package dynsbm as a base, significantly increasing funct
 - Intermediary saves;
 - Return of estimated node marginals;
 - Link prediction;
+
 and importantly permitting the inclusion of mixed nodal metadata, through defining one of the following distributions over each type:
 - Multivariate Normal;
 - Poisson;
