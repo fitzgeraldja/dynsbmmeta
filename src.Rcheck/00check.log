@@ -1,0 +1,8 @@
+* using log directory ‘/home/fitzgeraldj/Documents/main_project/confirmation/code/dynsbm_meta/dynsbmmeta/src.Rcheck’
+* using R version 3.6.3 (2020-02-29)
+* using platform: x86_64-pc-linux-gnu (64-bit)
+* using session charset: UTF-8
+* checking for file ‘src/DESCRIPTION’ ... ERROR
+File DESCRIPTION does not exist
+* DONE
+Status: 1 ERROR

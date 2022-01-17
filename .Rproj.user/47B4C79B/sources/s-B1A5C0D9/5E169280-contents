@@ -1,0 +1,103 @@
+setwd("/home/fitzgeraldj/Documents/main_project/confirmation/code/dynsbm_meta/dynsbmmeta/")
+library(dynsbmmeta)
+library(dplyr)
+
+ret_best <- FALSE
+nstarts <- 10
+
+
+
+# A has count data, A_w has inverse n_au weighting per paper, so likely better to use Gaussian than Poisson
+# NB as currently implemented will also load (but not parse into var) ref nets
+files <- list.files(path="/home/fitzgeraldj/Documents/main_project/confirmation/code/dynsbm_meta/R_data/",pattern="^col.*\\.gzip$",full.names = TRUE)
+nfiles <- length(files)
+for (i in 1:nfiles){
+  load(files[i])
+}
+
+col_A <- eval(parse(text="col_A"))
+if (storage.mode(col_A)!= "integer") storage.mode(col_A) <- "integer"
+col_A_w <- eval(parse(text="col_A_w"))
+# NB need to take final 4 periods out of all 8 for metadata
+col_ages <- eval(parse(text="col_ages"))
+col_subjs <- eval(parse(text="col_subjs"))
+col_insts <- eval(parse(text="col_insts"))
+col_ages <- col_ages[5:8,,,drop=F]
+col_subjs <- col_subjs[5:8,,]
+col_insts <- col_insts[5:8,,]
+
+
+# choose 26 on basis that Louvain found about this number 
+# don't have time to run for other options
+Qmin <- 22
+Qmax <- 27
+
+list.dynsbmmeta = list()
+best.icls = list()
+
+ptm <- proc.time() # start timing
+results <- select.dynsbmmeta(Y = col_A, X = append(list(col_ages),append(list(col_subjs),list(col_insts))), Qmin = Qmin, Qmax = Qmax, edge.type = "poisson", meta.types = c("poisson",                                                                                                    "independent bernoulli x 24",
+                                                        "independent bernoulli x 149"                                                                                  ), meta.tuning=c(1), nb.cores = 30, nstart = nstarts, iter.max = 30,
+                             ret_best = ret_best,
+                             return.marginals=TRUE,
+                             save.on.run=TRUE,
+                             save.path="/home/fitzgeraldj/Documents/main_project/confirmation/code/dynsbm_meta/R_data/col_au_results.R") # note default is 25 starts, 20 iterations max, but on average only need a few iterations
+ttime <- proc.time() - ptm # stop the clock
+print("Time to run w metadata for Colombian authors")
+print(ttime)
+print(paste("Best ICL: ",
+            max(sapply(results, function(x) compute.icl(x,meta.types = c("poisson",                                                                                                    "independent bernoulli x 24",
+                                                                         "independent bernoulli x 149"                                                                                  ))))))
+
+if (ret_best) print(paste("Ran",results[[1]]$iter,"iterations"))
+for (res in results){
+  list.dynsbmmeta[[length(list.dynsbmmeta)+1]]=res
+}
+
+
+
+# to save
+Q <- Qmin
+if (ret_best){
+  for (i in 1:length(list.dynsbmmeta)){
+    memb <- list.dynsbmmeta[[i]]$membership
+    trans <- list.dynsbmmeta[[i]]$trans
+    icl <- lapply(list.dynsbmmeta, function(x) compute.icl(x,meta.types = c("poisson",                                                                                                    "independent bernoulli x 24",
+                                                                            "independent bernoulli x 149"                                                                                  )))
+    age_params <- lapply(list.dynsbmmeta, function(x) x$varphi[[1]])
+    subj_params <- lapply(list.dynsbmmeta, function(x) x$varphi[[2]])
+    inst_params <- lapply(list.dynsbmmeta, function(x) x$varphi[[3]])
+    
+    # save(memb,file=paste("/home/fitzgeraldj/Documents/main_project/confirmation/code/dynsbm_meta/R_data/test",testno,"_q",Q,"_Z.Rdata",sep=""))
+    # save(trans,file=paste("/home/fitzgeraldj/Documents/main_project/confirmation/code/dynsbm_meta/R_data/test",testno,"_q",Q,"_trans.Rdata",sep=""))
+    # save(icl,file=paste("/home/fitzgeraldj/Documents/main_project/confirmation/code/dynsbm_meta/R_data/test",testno,"_q",Q,"_icl.Rdata",sep=""))
+    # save(bern_params,file=paste("/home/fitzgeraldj/Documents/main_project/confirmation/code/dynsbm_meta/R_data/test",testno,"_q",Q,"_bernp.Rdata",sep=""))
+    # save(pois_params,file=paste("/home/fitzgeraldj/Documents/main_project/confirmation/code/dynsbm_meta/R_data/test",testno,"_q",Q,"_poisp.Rdata",sep=""))
+    # print(paste("Success for test",testno))
+    Q <- Q + 1
+  }
+}else{
+  memb <- lapply(list.dynsbmmeta, function(x) x$membership)
+  trans <- lapply(list.dynsbmmeta, function(x) x$trans)
+  icl <- lapply(list.dynsbmmeta, function(x) compute.icl(x,meta.types = c("poisson",                                                                                                    "independent bernoulli x 24",
+                                                                          "independent bernoulli x 149"                                                                                  )))
+  age_params <- lapply(list.dynsbmmeta, function(x) x$varphi[[1]])
+  subj_params <- lapply(list.dynsbmmeta, function(x) x$varphi[[2]])
+  inst_params <- lapply(list.dynsbmmeta, function(x) x$varphi[[3]])
+  taum <- lapply(list.dynsbmmeta, function(x) x$fin.taum)
+  beta <- lapply(list.dynsbmmeta, function(x) x$beta)
+  print("Attempting to save...")
+  save(memb,file="/home/fitzgeraldj/Documents/main_project/confirmation/code/dynsbm_meta/R_data/col_au_Z_full.Rdata")
+  save(trans,file="/home/fitzgeraldj/Documents/main_project/confirmation/code/dynsbm_meta/R_data/col_au_trans_full.Rdata")
+  save(icl,file="/home/fitzgeraldj/Documents/main_project/confirmation/code/dynsbm_meta/R_data/col_au_icl_full.Rdata")
+  save(age_params,file="/home/fitzgeraldj/Documents/main_project/confirmation/code/dynsbm_meta/R_data/col_au_age_params_full.Rdata")
+  save(subj_params,file="/home/fitzgeraldj/Documents/main_project/confirmation/code/dynsbm_meta/R_data/col_au_subj_params_full.Rdata")
+  save(inst_params,file="/home/fitzgeraldj/Documents/main_project/confirmation/code/dynsbm_meta/R_data/col_au_inst_params_full.Rdata")
+  save(taum,file="/home/fitzgeraldj/Documents/main_project/confirmation/code/dynsbm_meta/R_data/col_au_taum_full.Rdata")
+  save(beta,file="/home/fitzgeraldj/Documents/main_project/confirmation/code/dynsbm_meta/R_data/col_au_beta_full.Rdata")
+  print("Success")
+}
+
+save(ttime,file="/home/fitzgeraldj/Documents/main_project/confirmation/code/dynsbm_meta/R_data/col_au_ttime.Rdata")
+
+

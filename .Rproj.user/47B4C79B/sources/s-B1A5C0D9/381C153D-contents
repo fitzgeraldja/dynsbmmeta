@@ -1,0 +1,82 @@
+setwd("/home/fitzgeraldj/Documents/main_project/confirmation/code/dynsbm_meta/dynsbmmeta/")
+library(dynsbm)
+library(dplyr)
+
+
+nstarts <- 10
+
+
+
+# A has count data, A_w has inverse n_au weighting per paper, so likely better to use Gaussian than Poisson
+files <- list.files(path="/home/fitzgeraldj/Documents/main_project/confirmation/code/dynsbm_meta/R_data/",pattern="^col_ref.*\\.gzip$",full.names = TRUE)
+nfiles <- length(files)
+for (i in 1:nfiles){
+  load(files[i])
+}
+
+col_A <- eval(parse(text="col_ref_A"))
+if (storage.mode(col_A)!= "integer") storage.mode(col_A) <- "integer"
+# col_A_w <- eval(parse(text="col_A_w"))
+# NB need to take final 4 periods out of all 8 for metadata
+# col_ages <- eval(parse(text="col_ref_ages"))
+# col_subjs <- eval(parse(text="col_ref_subjs"))
+# col_insts <- eval(parse(text="col_ref_insts"))
+# col_ages <- col_ages[5:8,,,drop=F]
+# col_subjs <- col_subjs[5:8,,]
+# col_insts <- col_insts[5:8,,]
+
+
+# choose 19 for comparison with ours
+# don't have time to run for other options
+Qmin <- 19
+Qmax <- 19
+
+list.dynsbm = list()
+# best.icls = list()
+
+ptm <- proc.time() # start timing
+results <- select.dynsbm(Y = col_A, Qmin = Qmin, Qmax = Qmax, edge.type = "binary", nb.cores = 30, nstart = nstarts, iter.max = 30) # note default is 25 starts, 20 iterations max, but on average only need a few iterations
+ttime <- proc.time() - ptm # stop the clock
+print("Time to run wo metadata for Colombian authors refs")
+print(ttime)
+# print(paste("Best ICL: ",
+#             max(sapply(results, function(x) compute.icl(x,meta.types = c("poisson",                                                                                                    "independent bernoulli x 24",
+#                                                                          "independent bernoulli x 173"                                                                                  ))))))
+
+# if (ret_best) print(paste("Ran",results[[1]]$iter,"iterations"))
+for (res in results){
+  list.dynsbm[[length(list.dynsbm)+1]]=res
+}
+
+
+
+# to save
+Q <- Qmin
+
+for (i in 1:length(list.dynsbm)){
+  memb <- list.dynsbm[[i]]$membership
+  trans <- list.dynsbm[[i]]$trans
+  beta <- list.dynsbm[[i]]$beta
+  # icl <- lapply(list.dynsbm, function(x) compute.icl(x,meta.types = c("poisson",                                                                                                    "independent bernoulli x 24",
+  #                                                                         "independent bernoulli x 173"                                                                                  )))
+  # age_params <- lapply(list.dynsbm, function(x) x$varphi[[1]])
+  # subj_params <- lapply(list.dynsbm, function(x) x$varphi[[2]])
+  # inst_params <- lapply(list.dynsbm, function(x) x$varphi[[3]])
+  
+  print("Attempting to save...")
+  save(memb,file="/home/fitzgeraldj/Documents/main_project/confirmation/code/dynsbm_meta/R_data/ocol_au_ref_Z_full.Rdata")
+  save(trans,file="/home/fitzgeraldj/Documents/main_project/confirmation/code/dynsbm_meta/R_data/ocol_au_ref_trans_full.Rdata")
+  # save(icl,file="/home/fitzgeraldj/Documents/main_project/confirmation/code/dynsbm_meta/R_data/ocol_au_ref_icl_full.Rdata")
+  save(beta,file="/home/fitzgeraldj/Documents/main_project/confirmation/code/dynsbm_meta/R_data/ocol_au_ref_beta_full.Rdata")
+  save(ttime,file="/home/fitzgeraldj/Documents/main_project/confirmation/code/dynsbm_meta/R_data/ocol_au_ref_ttime.Rdata")
+  print("Success")
+  Q <- Q + 1
+}
+
+ 
+
+
+
+
+
+
