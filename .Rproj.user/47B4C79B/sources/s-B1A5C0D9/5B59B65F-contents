@@ -1,0 +1,120 @@
+setwd("/home/fitzgeraldj/Documents/main_project/confirmation/code/dynsbm_meta/dynsbmmeta/")
+library(dynsbmmeta)
+library(dplyr)
+
+ret_best <- FALSE
+nstarts <- 25
+
+# A has count data, A_w has inverse n_au weighting per paper, so likely better to use Gaussian than Poisson
+files <- list.files(path="/home/fitzgeraldj/Documents/main_project/confirmation/code/dynsbm_meta/R_data/",pattern="^bunt.*\\.gzip$",full.names = TRUE)
+nfiles <- length(files)
+for (i in 1:nfiles){
+  load(files[i])
+}
+load("/home/fitzgeraldj/Documents/main_project/confirmation/code/dynsbm_meta/R_data/predbunt_A1.gzip")
+load("/home/fitzgeraldj/Documents/main_project/confirmation/code/dynsbm_meta/R_data/predbunt_gender.gzip")
+load("/home/fitzgeraldj/Documents/main_project/confirmation/code/dynsbm_meta/R_data/predbunt_program.gzip")
+load("/home/fitzgeraldj/Documents/main_project/confirmation/code/dynsbm_meta/R_data/predbunt_smoking.gzip")
+
+
+predno <- 2
+if (predno==1){
+  bunt_A <- eval(parse(text=paste("predbunt_A",predno,sep="")))
+  if (storage.mode(bunt_A)!= "integer") storage.mode(bunt_A) <- "integer"
+  # col_A_w <- eval(parse(text="col_A_w"))
+  # NB need to take final 4 periods out of all 8 for metadata
+  bunt_gender<- eval(parse(text="bunt_gender"))
+  bunt_program <- eval(parse(text="bunt_program"))
+  bunt_smoking <- eval(parse(text="bunt_smoking"))
+  # col_ages <- col_ages[5:8,,,drop=F]
+  # col_subjs <- col_subjs[5:8,,]
+  # col_insts <- col_insts[5:8,,]
+}else if (predno==2){
+  bunt_A <- eval(parse(text="bunt_A"))
+  if (storage.mode(bunt_A)!= "integer") storage.mode(bunt_A) <- "integer"
+  # col_A_w <- eval(parse(text="col_A_w"))
+  # NB need to take final 4 periods out of all 8 for metadata
+  bunt_gender<- eval(parse(text="predbunt_gender"))
+  bunt_program <- eval(parse(text="predbunt_program"))
+  bunt_smoking <- eval(parse(text="predbunt_smoking"))
+  # col_ages <- col_ages[5:8,,,drop=F]
+  # col_subjs <- col_subjs[5:8,,]
+  # col_insts <- col_insts[5:8,,]
+}
+
+
+
+# choose 21 on basis that Louvain found 27 groups, but effective number was only 21, so most could be absorbed
+# don't have time to run for other options
+Qmin <- 3
+Qmax <- 10
+
+list.dynsbmmeta <- list()
+best.icls <- list()
+
+ptm <- proc.time() # start timing
+results <- select.dynsbmmeta(Y = bunt_A, X = append(list(bunt_gender),append(list(bunt_program),list(bunt_smoking))), Qmin = Qmin, Qmax = Qmax, edge.type = "discrete", K=5, meta.types = c("categorical x 2","categorical x 3","categorical x 2"), meta.tuning=c(1), nb.cores = 30, nstart = nstarts, iter.max = 30,
+                             ret_best = ret_best,
+                             directed=TRUE,
+                             return.marginals=TRUE,
+                             # save.on.run=TRUE,
+                             # save.path="/home/fitzgeraldj/Documents/main_project/confirmation/code/dynsbm_meta/R_data/col_au_ref_results.R",
+) # note default is 25 starts, 20 iterations max, but on average only need a few iterations
+ttime <- proc.time() - ptm # stop the clock
+print("Time to run w metadata for Bunt dataset")
+print(ttime)
+print(paste("Best ICL: ",
+            max(sapply(results, function(x) compute.icl(x,meta.types = c("categorical x 2","categorical x 3","categorical x 2"))))))
+
+if (ret_best) print(paste("Ran",results[[1]]$iter,"iterations"))
+for (res in results){
+  list.dynsbmmeta[[length(list.dynsbmmeta)+1]] <- res
+}
+
+
+
+# to save
+Q <- Qmin
+if (ret_best){
+  for (i in 1:length(list.dynsbmmeta)){
+    # if (i>(Q+1-Qmin)*(nstarts+1)){
+    #   Q <- Q + 1
+    # }
+    memb <- list.dynsbmmeta[[i]]$membership
+    trans <- list.dynsbmmeta[[i]]$trans
+    icl <- lapply(list.dynsbmmeta, function(x) compute.icl(x,meta.types = c("categorical x 2","categorical x 3","categorical x 2")))
+    gender_params <- lapply(list.dynsbmmeta, function(x) x$varphi[[1]])
+    program_params <- lapply(list.dynsbmmeta, function(x) x$varphi[[2]])
+    smoking_params <- lapply(list.dynsbmmeta, function(x) x$varphi[[3]])
+    
+    # save(memb,file=paste("/home/fitzgeraldj/Documents/main_project/confirmation/code/dynsbm_meta/R_data/test",testno,"_q",Q,"_Z.Rdata",sep=""))
+    # save(trans,file=paste("/home/fitzgeraldj/Documents/main_project/confirmation/code/dynsbm_meta/R_data/test",testno,"_q",Q,"_trans.Rdata",sep=""))
+    # save(icl,file=paste("/home/fitzgeraldj/Documents/main_project/confirmation/code/dynsbm_meta/R_data/test",testno,"_q",Q,"_icl.Rdata",sep=""))
+    # save(bern_params,file=paste("/home/fitzgeraldj/Documents/main_project/confirmation/code/dynsbm_meta/R_data/test",testno,"_q",Q,"_bernp.Rdata",sep=""))
+    # save(pois_params,file=paste("/home/fitzgeraldj/Documents/main_project/confirmation/code/dynsbm_meta/R_data/test",testno,"_q",Q,"_poisp.Rdata",sep=""))
+    # print(paste("Success for test",testno))
+  }
+}else{
+  memb <- lapply(list.dynsbmmeta, function(x) x$membership)
+  trans <- lapply(list.dynsbmmeta, function(x) x$trans)
+  icl <- lapply(list.dynsbmmeta, function(x) compute.icl(x,meta.types = c("categorical x 2","categorical x 3","categorical x 2")))
+  gender_params <- lapply(list.dynsbmmeta, function(x) x$varphi[[1]])
+  program_params <- lapply(list.dynsbmmeta, function(x) x$varphi[[2]])
+  smoking_params <- lapply(list.dynsbmmeta, function(x) x$varphi[[3]])
+  taum <- lapply(list.dynsbmmeta, function(x) x$fin.taum)
+  beta <- lapply(list.dynsbmmeta, function(x) x$beta)
+  print("Attempting to save...")
+  save(memb,file=paste("/home/fitzgeraldj/Documents/main_project/confirmation/code/dynsbm_meta/R_data/predbunt",predno,"_Z_full.Rdata",sep=""))
+  save(trans,file=paste("/home/fitzgeraldj/Documents/main_project/confirmation/code/dynsbm_meta/R_data/predbunt",predno,"_trans_full.Rdata",sep=""))
+  save(icl,file=paste("/home/fitzgeraldj/Documents/main_project/confirmation/code/dynsbm_meta/R_data/predbunt",predno,"_icl_full.Rdata",sep=""))
+  save(gender_params,file=paste("/home/fitzgeraldj/Documents/main_project/confirmation/code/dynsbm_meta/R_data/predbunt",predno,"_gender_params_full.Rdata",sep=""))
+  save(program_params,file=paste("/home/fitzgeraldj/Documents/main_project/confirmation/code/dynsbm_meta/R_data/predbunt",predno,"_program_params_full.Rdata",sep=""))
+  save(smoking_params,file=paste("/home/fitzgeraldj/Documents/main_project/confirmation/code/dynsbm_meta/R_data/predbunt",predno,"_smoking_params_full.Rdata",sep=""))
+  save(taum,file=paste("/home/fitzgeraldj/Documents/main_project/confirmation/code/dynsbm_meta/R_data/predbunt",predno,"_taum_full.Rdata",sep=""))
+  save(beta,file=paste("/home/fitzgeraldj/Documents/main_project/confirmation/code/dynsbm_meta/R_data/predbunt",predno,"_beta_full.Rdata",sep=""))
+  print("Success")
+}
+
+save(ttime,file=paste("/home/fitzgeraldj/Documents/main_project/confirmation/code/dynsbm_meta/R_data/predbunt",predno,"_ttime.Rdata",sep=""))
+
+

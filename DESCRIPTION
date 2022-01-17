@@ -1,0 +1,12 @@
+Package: dynsbmmeta
+Type: Package
+Title: Dynamic Stochastic Block Models with Metadata
+Version: 0.1
+Date: 2021-09-10
+Author: John Fitzgerald [cre, aut], Catherine Matias [aut], Vincent Miele [aut]
+Maintainer: John Fitzgerald <fitzgeraldj@maths.ox.ac.uk>
+Description: Dynamic stochastic block model with metadata that combines a stochastic block model (SBM) for its static part with independent Markov chains for the evolution of the nodes groups through time, as developed in  Matias and Miele (2016) <doi:10.1111/rssb.12200>, along with a new modification to allow for nodal metadata. Further, allows for discrete weighted edges using ZTP distributions, as suggested by Matias and Miele (2016), but not implemented in the corresponding package, dynsbm. An arXiv preprint will follow shortly.
+License: GPL-3
+LinkingTo: Rcpp, BH
+Imports: Rcpp (>= 1.0.3), BH (>=1.5.0), parallel, riverplot, RColorBrewer, grDevices, graphics, stats
+NeedsCompilation: yes

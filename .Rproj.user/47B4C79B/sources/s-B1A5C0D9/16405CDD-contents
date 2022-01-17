@@ -1,0 +1,85 @@
+
+setwd("/home/fitzgeraldj/Documents/main_project/confirmation/code/dynsbm_meta/dynsbmmeta/")
+library(dynsbmmeta)
+library(dplyr)
+
+start_test <- 21
+end_test <- 21
+ret_best <- FALSE
+nstarts <- 25
+
+
+for (testno in start_test:end_test){
+  files <- list.files(path="/home/fitzgeraldj/Documents/main_project/confirmation/code/dynsbm_meta/R_data/",pattern=paste("^test",testno,".*\\.gzip$",sep=""),full.names = TRUE)
+  nfiles <- length(files)
+  for (i in 1:nfiles){
+    load(files[i])
+  }
+  
+  test_A <- eval(parse(text=paste("test",testno,"_R_A_data",sep="")))
+  test_X_bern <- eval(parse(text=paste("test",testno,"_R_X_indep_bern_data",sep="")))
+  test_X_pois <- eval(parse(text=paste("test",testno,"_R_X_poisson_data",sep="")))
+  
+  # save time by just using right number of groups directly
+  Qmin = 2
+  Qmax = 2
+  list.dynsbmmeta = list()
+  best.icls = list()
+  
+  ptm <- proc.time() # start timing
+  results <- select.dynsbmmeta(Y = test_A, X = append(list(test_X_bern),list(test_X_pois)), Qmin = Qmin, Qmax = Qmax, edge.type = "binary", meta.types = c("independent bernoulli x 4","poisson"), meta.tuning=c(1), nb.cores = 20, nstart = nstarts, iter.max = 30,
+                               ret_best = ret_best,
+                               return.marginals=TRUE) # note default is 25 starts, 20 iterations max, but on average only need a few iterations
+  ttime <- proc.time() - ptm # stop the clock
+  print(paste("Time to run w metadata for test ",testno,":",sep=""))
+  print(ttime)
+  print(paste("Best ICL: ",
+              max(sapply(results, function(x) compute.icl(x,meta.types = c("independent bernoulli x 4","poisson"))))))
+  
+  if (ret_best) print(paste("Ran",results[[1]]$iter,"iterations"))
+  for (res in results){
+    list.dynsbmmeta[[length(list.dynsbmmeta)+1]]=res
+  }
+  
+  
+  
+  # to save
+  Q <- Qmin
+  if (ret_best){
+    for (i in 1:length(list.dynsbmmeta)){
+      memb <- list.dynsbmmeta[[i]]$membership
+      trans <- list.dynsbmmeta[[i]]$trans
+      icl <- compute.icl(list.dynsbmmeta[[i]],meta.types = c("independent bernoulli x 4","poisson"))
+      bern_params <- list.dynsbmmeta[[i]]$varphi[[1]]
+      pois_params <- list.dynsbmmeta[[i]]$varphi[[2]]
+      
+      # save(memb,file=paste("/home/fitzgeraldj/Documents/main_project/confirmation/code/dynsbm_meta/R_data/test",testno,"_q",Q,"_Z.Rdata",sep=""))
+      # save(trans,file=paste("/home/fitzgeraldj/Documents/main_project/confirmation/code/dynsbm_meta/R_data/test",testno,"_q",Q,"_trans.Rdata",sep=""))
+      # save(icl,file=paste("/home/fitzgeraldj/Documents/main_project/confirmation/code/dynsbm_meta/R_data/test",testno,"_q",Q,"_icl.Rdata",sep=""))
+      # save(bern_params,file=paste("/home/fitzgeraldj/Documents/main_project/confirmation/code/dynsbm_meta/R_data/test",testno,"_q",Q,"_bernp.Rdata",sep=""))
+      # save(pois_params,file=paste("/home/fitzgeraldj/Documents/main_project/confirmation/code/dynsbm_meta/R_data/test",testno,"_q",Q,"_poisp.Rdata",sep=""))
+      # print(paste("Success for test",testno))
+      Q <- Q + 1
+    }
+  }else{
+    memb <- lapply(list.dynsbmmeta, function(x) x$membership)
+    trans <- lapply(list.dynsbmmeta, function(x) x$trans)
+    icl <- lapply(list.dynsbmmeta, function(x) compute.icl(x,meta.types = c("independent bernoulli x 4","poisson")))
+    bern_params <- lapply(list.dynsbmmeta, function(x) x$varphi[[1]])
+    pois_params <- lapply(list.dynsbmmeta, function(x) x$varphi[[2]])
+    taum <- lapply(list.dynsbmmeta, function(x) x$fin.taum)
+    beta <- lapply(list.dynsbmmeta, function(x) x$beta)
+    print("Attempting to save...")
+    save(memb,file=paste("/home/fitzgeraldj/Documents/main_project/confirmation/code/dynsbm_meta/R_data/test",testno,"_linkpred_Z_full.Rdata",sep=""))
+    save(trans,file=paste("/home/fitzgeraldj/Documents/main_project/confirmation/code/dynsbm_meta/R_data/test",testno,"_linkpred_trans_full.Rdata",sep=""))
+    save(icl,file=paste("/home/fitzgeraldj/Documents/main_project/confirmation/code/dynsbm_meta/R_data/test",testno,"_linkpred_icl_full.Rdata",sep=""))
+    save(bern_params,file=paste("/home/fitzgeraldj/Documents/main_project/confirmation/code/dynsbm_meta/R_data/test",testno,"_linkpred_bernp_full.Rdata",sep=""))
+    save(pois_params,file=paste("/home/fitzgeraldj/Documents/main_project/confirmation/code/dynsbm_meta/R_data/test",testno,"_linkpred_poisp_full.Rdata",sep=""))
+    save(taum,file=paste("/home/fitzgeraldj/Documents/main_project/confirmation/code/dynsbm_meta/R_data/test",testno,"_linkpred_taum_full.Rdata",sep=""))
+    save(beta,file=paste("/home/fitzgeraldj/Documents/main_project/confirmation/code/dynsbm_meta/R_data/test",testno,"_linkpred_beta_full.Rdata",sep=""))
+    print("Success")
+  }
+  
+  save(ttime,file=paste("/home/fitzgeraldj/Documents/main_project/confirmation/code/dynsbm_meta/R_data/test",testno,"_ttime.Rdata",sep=""))
+}
+
