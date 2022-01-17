@@ -1,8 +1,0 @@
-# test 1
-files <- list.files(path="./data/",pattern="^test1.*\\.gzip$",full.names = TRUE)
-nfiles <- length(files)
-for (i in 1:nfiles){
-  load(files[i])
-}
-select.dynsbmmeta(Y = test1_R_A_data, X = list(test1_R_X_indep_bern_data,test1_R_X_poisson_data), Qmin = 2, Qmax = 5, edge.type = "binary", meta.types = c("independent bernoulli x 4","poisson"), nb.cores = 20)
-
