@@ -26,7 +26,9 @@ namespace dynsbm{
   class DynDCSBMPoisson 
     : public DynSBM<int,std::vector<double>>{
   protected:
-    
+
+    double*** _degs; // observed degs
+
     double*** _dclamql; // param for edges between q and l
     double*** _dcmql; // weighted edge count between groups 
     double** _dckappaq; // weighted total group degree
@@ -41,6 +43,8 @@ namespace dynsbm{
   public:
     DynDCSBMPoisson(int T, int N, int Q, int S, const Rcpp::IntegerMatrix & present, const std::vector<std::vector<std::vector<int>>> & metapresent, const std::vector<std::string> & metatypes, const std::vector<int> & metadims, const std::vector<double> & metatuning, bool isdirected = false, bool withselfloop = false)
       : DynSBM<int,std::vector<double>>(T,N,Q,S,present,metapresent,metatypes,metadims,metatuning,isdirected,withselfloop) {
+      allocate3D(_degs,_t,_n,2);
+      
       allocate3D(_dclamql,_t,_q,_q);
       // need to set nonzero, choose as 1 arbitrarily -- will immediately be corrected on first iteration
       for (int t=0;t<_t;t++){
@@ -56,6 +60,7 @@ namespace dynsbm{
       // Rcpp::Rcout << "Successfully allocated distributions" << "\n";
     }
     ~DynDCSBMPoisson(){
+      deallocate3D(_degs,_t,_n,2);
       deallocate3D(_dclamql,_t,_q,_q);
       deallocate3D(_dcmql,_t,_q,_q);
       deallocate2D(_dckappaq,_t,_q);
@@ -86,6 +91,8 @@ namespace dynsbm{
     }
     void updateTheta(int*** const Y);
     void updateFrozenTheta(int*** const Y);
+
+    void initDegs(int*** const Y);
     // friend class DynDCSBMPoissonAddEventFunctor;
   };
 

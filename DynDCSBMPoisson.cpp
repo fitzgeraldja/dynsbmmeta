@@ -129,4 +129,22 @@ namespace dynsbm{
         }
     }
   }
+
+  void DynDCSBMPoisson::initDegs(int*** const Y){
+    for(int t=0;t<_t;t++){
+      for(int i=0;i<_n;i++){
+        if(ispresent(t,i)){
+          for(int j=0;j<i;j++){
+            _degs[t][i][0] +=_Y[t][i][j];
+            if (_isdirected){
+              _degs[t][i][1] += Y[t][j][i];
+            }
+          }
+          if (_withselfloop){
+            _degs[t][i][0] += 1.0;
+          }
+        }
+      }
+    }
+  }
 }

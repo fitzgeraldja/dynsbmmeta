@@ -19,7 +19,7 @@
 #include<DynSBM.h>
 #include<iostream>
 namespace dynsbm{
-  template<class TDynSBM, typename Ytype, typename Xtype> // templates with type of DynSBM (Binary, Discrete, Gaussian), type of Y (int or double), and type of X (either int (categorical), double (continuous), or std::vector (cont vector and/or word embeddings for topics))
+  template<class TDynSBM, typename Ytype, typename Xtype> // templates with type of DynSBM (Binary, Discrete, Gaussian, Poisson), type of Y (int or double), and type of X (either int (categorical), double (continuous), or std::vector (cont vector and/or word embeddings for topics))
   class EM{
   private:
     TDynSBM _model;
@@ -41,6 +41,82 @@ namespace dynsbm{
 		_model.updateVarphi(X);
     }
     int run(Ytype*** const Y, Xtype*** const X, int nbit, int nbitFP, bool frozen){
+      double prevlogl = _model.completedLoglikelihood(Y, X);
+      //---- estimation
+      int it = 0, nbiteff = 0;
+      while(it<nbit){
+		int itfp = 0;
+		double prevloglfp = prevlogl;
+		while (itfp<nbitFP){
+			_model.updateTau(Y, X);
+			if (itfp%3==0){ // saving time
+				double newloglfp = _model.completedLoglikelihood(Y, X);
+				if(fabs((prevloglfp-newloglfp)/prevloglfp)<1e-4){
+				itfp = nbitFP;
+				} else{
+				prevloglfp = newloglfp;
+				itfp = itfp+1;
+				}
+			} else
+				itfp = itfp+1;
+#ifdef DEBUG
+		std::cerr<<"After EStep: "<<_model.completedLoglikelihood(Y, X)<<std::endl;
+#endif
+		}
+		_model.updateTrans();
+#ifdef DEBUG
+		std::cerr<<"After MStep on trans: "<<_model.completedLoglikelihood(Y, X)<<std::endl;
+#endif
+		_model.updateStationary();
+		if(frozen)
+			_model.updateFrozenTheta(Y);
+		else
+			_model.updateTheta(Y);	  
+#ifdef DEBUG
+		std::cerr<<"After MStep on theta: "<<_model.completedLoglikelihood(Y, X)<<std::endl;
+#endif
+		_model.updateVarphi(X);
+#ifdef DEBUG
+		std::cerr<<"After MStep on varphi: "<<_model.completedLoglikelihood(Y, X)<<std::endl;
+#endif
+		double newlogl = _model.completedLoglikelihood(Y, X);
+#ifdef DEBUG
+		std::cerr<<"Testing the likelihood decrease: "<<prevlogl<<" -> "<<newlogl<<std::endl;
+#endif
+		nbiteff++;
+		if(fabs((prevlogl-newlogl)/prevlogl)<1e-4){
+#ifdef DEBUG
+	  		std::cerr<<"Stopping: criteria is reached"<<std::endl;
+#endif
+	  		it=nbit;
+		}
+		if(prevlogl>newlogl){
+#ifdef DEBUG
+	 		std::cerr<<"Stopping: increasing logl"<<std::endl;
+#endif
+			it=nbit;
+		}
+		prevlogl = newlogl;
+		it = it+1;
+      }
+      return(nbiteff);
+    }
+  };
+  template<typename Ytype, typename Xtype>
+  void EM<class DynDCSBMPoisson, Ytype, Xtype>::initialize(const std::vector<int>& clustering, Ytype*** const Y, Xtype*** const X, bool frozen=false){ 
+      _model.initTau(clustering);
+	  _model.initDegs(Y);
+      if(frozen)
+		_model.updateFrozenTheta(Y);
+      else
+		_model.updateTheta(Y);	
+		_model.initNotinformativeStationary();
+		_model.initNotinformativeTrans();
+		_model.updateVarphi(X);
+  }
+
+  template<typename Ytype, typename Xtype>	
+  int EM<class DynDCSBMPoisson, Ytype, Xtype>::run(Ytype*** const Y, Xtype*** const X, int nbit, int nbitFP, bool frozen){
       double prevlogl = _model.completedLoglikelihood(Y, X);
       //---- estimation
       int it = 0, nbiteff = 0;
