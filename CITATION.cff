@@ -1,0 +1,25 @@
+# This CITATION.cff file was generated with cffinit.
+# Visit https://bit.ly/cffinit to generate yours today!
+
+cff-version: 1.2.0 
+title: >-
+  dynsbmmeta: Dynamic Stochastic Blockmodels for temporal networks with nodal metadata
+message: >- 
+  To cite dynsbmmeta, prior to resulting publications please cite it as below
+type: software
+authors: 
+  - given-names: John Andrew 
+    family-names: Fitzgerald 
+    email: j.a.fitzgerald@outlook.com
+    affiliation: University of Oxford
+    orcid: 'https://orcid.org/0000-0002-0549-8130'
+repository-code: 'https://github.com/fitzgeraldja/dynsbmmeta'
+keywords:
+  - SBM
+  - dynamic network 
+  - metadata 
+  - complex network 
+  - variational inference 
+license: GPL-3.0-or-later
+version: '0.1'
+date-released: '2022-01-17'
