@@ -17,9 +17,10 @@
 #ifndef DYNSBM_EM_H
 #define DYNSBM_EM_H
 #include<DynSBM.h>
+#include<DynDCSBMPoisson.h>
 #include<iostream>
 namespace dynsbm{
-  template<class TDynSBM, typename Ytype, typename Xtype> // templates with type of DynSBM (Binary, Discrete, Gaussian, Poisson), type of Y (int or double), and type of X (either int (categorical), double (continuous), or std::vector (cont vector and/or word embeddings for topics))
+  template<class TDynSBM, typename Ytype, typename Xtype> // templates with type of DynSBM (Binary, Discrete, Gaussian, Poisson, DCPoisson), type of Y (int or double), and type of X (either int (categorical), double (continuous), or std::vector (cont vector and/or word embeddings for topics))
   class EM{
   private:
     TDynSBM _model;
@@ -30,17 +31,46 @@ namespace dynsbm{
     const TDynSBM& getModel() const{
       return _model;
     }
-    void initialize(const std::vector<int>& clustering, Ytype*** const Y, Xtype*** const X, bool frozen=false){ 
-      _model.initTau(clustering);
-      if(frozen)
-		_model.updateFrozenTheta(Y);
-      else
-		_model.updateTheta(Y);	
-		_model.initNotinformativeStationary();
-		_model.initNotinformativeTrans();
-		_model.updateVarphi(X);
+	
+    void initialize(const std::vector<int>& clustering, Ytype*** const Y, Xtype*** const X, bool frozen=false);
+
+    int run(Ytype*** const Y, Xtype*** const X, int nbit, int nbitFP, bool frozen);
+	
+  };
+  
+  // partial specialisation for DC initialisation
+  template<typename Ytype, typename Xtype>
+  class EM<DynDCSBMPoisson,Ytype,Xtype>{
+  private:
+    DynDCSBMPoisson _model;
+  public:
+    EM(int T, int N, int Q, int S, const Rcpp::IntegerMatrix& present, const std::vector<std::vector<std::vector<int>>>& metapresent, const std::vector<std::string> & metatypes, const std::vector<int> & metadims, const std::vector<double> & metatuning, bool isdirected = false, bool withselfloop = false)
+      : _model(T,N,Q,S,present,metapresent,metatypes,metadims,metatuning,isdirected,withselfloop) {}
+    ~EM(){};
+    const DynDCSBMPoisson& getModel() const{
+      return _model;
     }
-    int run(Ytype*** const Y, Xtype*** const X, int nbit, int nbitFP, bool frozen){
+	
+    void initialize(const std::vector<int>& clustering, Ytype*** const Y, Xtype*** const X, bool frozen=false);
+
+    int run(Ytype*** const Y, Xtype*** const X, int nbit, int nbitFP, bool frozen);
+  };
+
+
+  template<class TDynSBM, typename Ytype, typename Xtype>
+  void EM<TDynSBM,Ytype,Xtype>::initialize(const std::vector<int>& clustering, Ytype*** const Y, Xtype*** const X, bool frozen){ 
+	_model.initTau(clustering);
+	if(frozen)
+	  _model.updateFrozenTheta(Y);
+	else
+	  _model.updateTheta(Y);	
+	  _model.initNotinformativeStationary();
+	  _model.initNotinformativeTrans();
+	  _model.updateVarphi(X);
+  }
+
+  template<class TDynSBM, typename Ytype, typename Xtype>
+  int EM<TDynSBM,Ytype,Xtype>::run(Ytype*** const Y, Xtype*** const X, int nbit, int nbitFP, bool frozen){
       double prevlogl = _model.completedLoglikelihood(Y, X);
       //---- estimation
       int it = 0, nbiteff = 0;
@@ -101,9 +131,9 @@ namespace dynsbm{
       }
       return(nbiteff);
     }
-  };
+  
   template<typename Ytype, typename Xtype>
-  void EM<class DynDCSBMPoisson, Ytype, Xtype>::initialize(const std::vector<int>& clustering, Ytype*** const Y, Xtype*** const X, bool frozen=false){ 
+  void EM<DynDCSBMPoisson, Ytype, Xtype>::initialize(const std::vector<int>& clustering, Ytype*** const Y, Xtype*** const X, bool frozen){ 
       _model.initTau(clustering);
 	  _model.initDegs(Y);
       if(frozen)
@@ -114,9 +144,9 @@ namespace dynsbm{
 		_model.initNotinformativeTrans();
 		_model.updateVarphi(X);
   }
-
-  template<typename Ytype, typename Xtype>	
-  int EM<class DynDCSBMPoisson, Ytype, Xtype>::run(Ytype*** const Y, Xtype*** const X, int nbit, int nbitFP, bool frozen){
+  
+  template<typename Ytype, typename Xtype>
+  int EM<DynDCSBMPoisson,Ytype,Xtype>::run(Ytype*** const Y, Xtype*** const X, int nbit, int nbitFP, bool frozen){
       double prevlogl = _model.completedLoglikelihood(Y, X);
       //---- estimation
       int it = 0, nbiteff = 0;
@@ -177,6 +207,5 @@ namespace dynsbm{
       }
       return(nbiteff);
     }
-  };
 }
 #endif

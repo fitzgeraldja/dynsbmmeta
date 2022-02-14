@@ -26,6 +26,7 @@
 #include<DynSBMDiscrete.h>
 #include<DynSBMGaussian.h>
 #include<DynSBMPoisson.h>
+#include<DynDCSBMPoisson.h>
 #include<EM.h>
 #include<string>
 #include<algorithm>
@@ -606,6 +607,124 @@ List dynsbmmetacore(int T, int N, int Q, int S,
         return List::create(Rcpp::Named("trans") = trans,
 			  Rcpp::Named("membership") = membership,
 			  Rcpp::Named("beta") = beta,
+			  Rcpp::Named("gamma") = gamma,
+			  Rcpp::Named("loglikelihood") = lkl,
+			  Rcpp::Named("iter") = nbiteff,
+			  Rcpp::Named("directed") = isdirected,
+			  Rcpp::Named("self.loop") = withselfloop,
+        Rcpp::Named("varphi") = varphi,
+        Rcpp::Named("fin.taum") = fintaums);
+      }
+    } else if (edgetype=="DCpoisson"){
+      EM<DynDCSBMPoisson,int,std::vector<double>> em(T,N,Q,S,present,metapresent,metatypes,metadims,metatuning,isdirected,withselfloop);
+      int*** Y;
+      allocate3D<int>(Y,T,N,N);
+      int p=0;
+      for(int j=0; j<N; j++){
+        for(int i=0; i<N; i++){
+          for(int t=0; t<T; t++){
+            Y[t][i][j] = int(Yasvector[p]);
+            p++;
+          }
+        }
+      }
+      
+      std::vector<double>*** X;
+      allocate3Dvectors<double>(X,T,N,S,metadims);    
+      for (int spos=0; spos<S; spos++){
+        Rcpp::NumericVector Xsvector = Xaslist[spos];
+        int p=0;
+        for (int ds=0;ds<metadims[spos];ds++){
+          for (int i=0;i<N;i++){
+            for (int t=0;t<T;t++){
+              X[t][i][spos][ds]=Xsvector[p];
+              p++;
+              if (metapresent[spos][t][i]!=0){
+                for (const auto& x : X[t][i][spos]){
+                  if (std::isnan(x)){
+                    throw std::invalid_argument("Loading nan where metadata should be present: (t,i,s) = (" + std::to_string(t) +","+std::to_string(i) +","+std::to_string(spos)+") and p is "+std::to_string(p));
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+      // Rcpp::Rcout << "Successfully loaded metadata, here there are no nans when metapresent..." << "\n";
+      
+      em.initialize(as<vector<int> >(clustering),Y,X,frozen);
+      int nbiteff = em.run(Y,X,nbit,10,frozen);
+      NumericMatrix trans(Q,Q);
+      for(int q=0;q<Q;q++) for(int l=0;l<Q;l++) trans[l+q*Q] = em.getModel().getTrans(q,l);
+      IntegerMatrix membership(N,T);
+      for(int t=0;t<T;t++){
+        std::vector<int> groups = em.getModel().getGroupsByMAP(t);
+        for(int i=0;i<N;i++) membership[i+t*N] = groups[i]+1;
+      }
+      
+      Rcpp::NumericVector gammadims(3);
+      gammadims[0] = T; gammadims[1] = Q; gammadims[2] = Q; 
+      Rcpp::Dimension d2(gammadims);                // get the dim object
+      Rcpp::NumericVector gamma(d2);             // create vec. with correct dims
+      for(int t=0;t<T;t++){
+        for(int q=0;q<Q;q++){
+          for(int l=0;l<Q;l++){
+            gamma[l*(Q*T)+q*T+t]= em.getModel().getDClam(t,q,l);
+	    }}}
+      
+      std::vector<int> distdims = em.getModel().getDistdims();
+      Rcpp::List varphi(S); 
+      for (int s=0;s<S;s++){
+        Rcpp::NumericVector varphisdims(3);
+        varphisdims[0]=T; varphisdims[1]=Q; varphisdims[2]=distdims[s];
+        Rcpp::Dimension d(varphisdims);
+        Rcpp::NumericVector varphis(d);
+        for(int t=0;t<T;t++){
+          for(int q=0;q<Q;q++){
+            const std::vector<double> & temp = em.getModel().getVarphi(t,q,s);
+            for(int ds=0;ds<distdims[s];ds++){
+              varphis[ds*(Q*T)+q*T+t]=temp[ds];
+            }
+          }
+        }
+        varphi[s]=varphis;
+      }
+
+      Rcpp::NumericVector fintaumdims(3);
+      fintaumdims[0] = T; 
+      fintaumdims[1] = N; 
+      fintaumdims[2] = Q;
+      Rcpp::Dimension fintaud(fintaumdims); // get the dim object
+      Rcpp::NumericVector fintaums(fintaud); // create vec. with correct dims
+      if (ret_marginals){
+        // return estimates of marginals
+        for(int t=0;t<T;t++){
+          for(int i=0; i<N; i++){
+            for(int q=0;q<Q;q++){
+              fintaums[q*(N*T)+i*T+t]=em.getModel().getfinTaum(t,i,q);
+            }
+          }
+        }
+      } 
+
+      double lkl = em.getModel().modelselectionLoglikelihood(Y, X);
+
+      
+      deallocate3D<int>(Y,T,N,Q);
+      deallocate3D<std::vector<double>>(X,T,N,S);
+      
+      if (!ret_marginals){
+        return List::create(Rcpp::Named("trans") = trans,
+			  Rcpp::Named("membership") = membership,
+			  Rcpp::Named("gamma") = gamma,
+			  Rcpp::Named("loglikelihood") = lkl,
+			  Rcpp::Named("iter") = nbiteff,
+			  Rcpp::Named("directed") = isdirected,
+			  Rcpp::Named("self.loop") = withselfloop,
+        Rcpp::Named("varphi") = varphi);
+      } else {
+        return List::create(Rcpp::Named("trans") = trans,
+			  Rcpp::Named("membership") = membership,
 			  Rcpp::Named("gamma") = gamma,
 			  Rcpp::Named("loglikelihood") = lkl,
 			  Rcpp::Named("iter") = nbiteff,

@@ -725,7 +725,7 @@ namespace dynsbm{
     deallocate3D<double>(betasumql,_t,_q,_q);
   }
   
-  // need to change for metadata
+  
   template<typename Ytype, typename Xtype>
   double DynSBM<Ytype, Xtype>::completedLoglikelihood(Ytype*** const Y, Xtype*** const X) const{ // including entropy term
     double J = 0.;
