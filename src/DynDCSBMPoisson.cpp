@@ -95,10 +95,11 @@ namespace dynsbm{
       for(int q=(_isdirected?0:1);q<_q;q++){        
         for(int l=0;l<_q;l++){ // note l < q
           if (_isdirected){
-            _dclamql[t][q][l] = _dcmql[t][q][l] / (_dckappaq[t][q][0] * _dckappaq[t][l][1]);
-            _dclamql[t][l][q] = _dcmql[t][l][q] / (_dckappaq[t][l][0] * _dckappaq[t][q][1]);
+            if (_dcmql[t][q][l] > 0) _dclamql[t][q][l] = _dcmql[t][q][l] / (_dckappaq[t][q][0] * _dckappaq[t][l][1]);
+            if (_dcmql[t][l][q] > 0) _dclamql[t][l][q] = _dcmql[t][l][q] / (_dckappaq[t][l][0] * _dckappaq[t][q][1]);
+            
           } else {
-            _dclamql[t][q][l] = _dcmql[t][q][l] / (_dckappaq[t][q][0] * _dckappaq[t][l][0]);
+            if (_dcmql[t][q][l] > 0) _dclamql[t][q][l] = _dcmql[t][q][l] / (_dckappaq[t][q][0] * _dckappaq[t][l][0]);
           }
         }
       }
@@ -114,9 +115,9 @@ namespace dynsbm{
       }
       for(int t=0;t<_t;t++){
         if (_isdirected){
-          _dclamql[t][q][q] = summq / (sumkappaqout * sumkappaqin);
+          if (summq > 0 ) _dclamql[t][q][q] = summq / (sumkappaqout * sumkappaqin);
         } else {
-          _dclamql[t][q][q] = summq / (sumkappaqout * sumkappaqout);
+          if (summq > 0 ) _dclamql[t][q][q] = summq / (sumkappaqout * sumkappaqout);
         }
       }
     }
@@ -149,10 +150,11 @@ namespace dynsbm{
       for(int q=(_isdirected?0:1);q<_q;q++){        
         for(int l=0;l<_q;l++){ // note l < q
           if (_isdirected){
-            _dclamql[t][q][l] = _dcmql[t][q][l] / (_dckappaq[t][q][0] * _dckappaq[t][l][1]);
-            _dclamql[t][l][q] = _dcmql[t][l][q] / (_dckappaq[t][l][0] * _dckappaq[t][q][1]);
+            if (_dcmql[t][q][l] > 0) _dclamql[t][q][l] = _dcmql[t][q][l] / (_dckappaq[t][q][0] * _dckappaq[t][l][1]);
+            if (_dcmql[t][l][q] > 0) _dclamql[t][l][q] = _dcmql[t][l][q] / (_dckappaq[t][l][0] * _dckappaq[t][q][1]);
+            
           } else {
-            _dclamql[t][q][l] = _dcmql[t][q][l] / (_dckappaq[t][q][0] * _dckappaq[t][l][0]);
+            if (_dcmql[t][q][l] > 0) _dclamql[t][q][l] = _dcmql[t][q][l] / (_dckappaq[t][q][0] * _dckappaq[t][l][0]);
           }
         }
       }
@@ -168,9 +170,9 @@ namespace dynsbm{
       }
       for(int t=0;t<_t;t++){
         if (_isdirected){
-          _dclamql[t][q][q] = summq / (sumkappaqout * sumkappaqin);
+          if (summq > 0 ) _dclamql[t][q][q] = summq / (sumkappaqout * sumkappaqin);
         } else {
-          _dclamql[t][q][q] = summq / (sumkappaqout * sumkappaqout);
+          if (summq > 0 ) _dclamql[t][q][q] = summq / (sumkappaqout * sumkappaqout);
         }
       }
     }

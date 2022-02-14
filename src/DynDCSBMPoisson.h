@@ -88,7 +88,10 @@ namespace dynsbm{
     // }
     
     double logDCDensity(int t, int q, int l, int y, int di, int dj) const{
-      return log(pdf(poisson(_dclamql[t][q][l]*di*dj),y));
+      if ((di==0)|(dj==0)) 
+        return 0; 
+      else 
+        return log(pdf(poisson(_dclamql[t][q][l]*di*dj),y));
     }
 
     void updateThetaCore(int*** const Y);
