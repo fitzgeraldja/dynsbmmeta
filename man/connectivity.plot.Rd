@@ -1,6 +1,7 @@
 \name{connectivity.plot}
 \alias{connectivity.plot}
 \title{
+<<<<<<< HEAD
 Plot the connectivity characteristics between groups associated to a dynamic stochastic block model.
 }
 \description{  
@@ -20,6 +21,28 @@ Each cell contains a curve with T time points on the x-axis corresponding to the
 If \code{dynsbm} was estimated with \code{edge.type=="binary"}, the area below the curve is filled in light blue.
 If \code{dynsbm} was estimated with \code{edge.type=="discrete"}, the area below the curve is divided into K areas corresponding to the proportion of edges  with value 1 to K (the darker blue, the greater edge intensity).
 If \code{dynsbm} was estimated with \code{edge.type=="continuous"}, the area below the curve is filled with a colored gradient representing the mean edge intensity (the darker blue, the greater).
+=======
+Plot the connectivity characteristics between groups associated to a dynamic stochastic block model with metadata.
+}
+\description{  
+Plot the connectivity characteristics between groups associated to a dynamic stochastic block model with metadata.
+}
+\usage{
+connectivity.plot(dynsbmmeta, Y)
+}
+\arguments{
+\item{dynsbmmeta}{An object of class \code{dynsbmmeta} retrieved with the function \code{select.dynsbmmeta}.}
+\item{Y}{An object of class \code{array} of dimension (T x N x N) containing T adjacency matrices of size (N x N), where N is the number of nodes in the network and T is the number of time points.}
+}
+\details{
+Interaction presence and intensity  between  nodes in  any of  the groups to  the others are represented in a QxQ matrix. 
+The cell in line q/column l deals with the connectivity between groups q/l. 
+Each cell contains a curve with T time points on the x-axis corresponding to the T proportions of present edges over all the possible edges, where Q is the number of groups and T is the number of time points, and  
+If \code{dynsbmmeta} was estimated with \code{edge.type=="binary"}, the area below the curve is filled in light blue.
+If \code{dynsbmmeta} was estimated with \code{edge.type=="discrete"}, the area below the curve is divided into K areas corresponding to the proportion of edges  with value 1 to K (the darker blue, the greater edge intensity).
+If \code{dynsbmmeta} was estimated with \code{edge.type=="continuous"}, the area below the curve is filled with a colored gradient representing the mean edge intensity (the darker blue, the greater).
+If \code{dynsbmmeta} was estimated with \code{edge.type=="poisson"}
+>>>>>>> dynsbmmeta-cp/master
 }
 \references{
 Catherine Matias and Vincent Miele, \emph{Statistical clustering of temporal networks through a dynamic stochastic block model}, Journal of the Royal Statistical Society: Series B (2017)
@@ -32,9 +55,15 @@ http://dx.doi.org/10.1098/rsos.170251
 https://arxiv.org/abs/1701.01355
 }
 \author{
+<<<<<<< HEAD
 Authors: Catherine Matias, Vincent Miele
   
 Maintainer: Vincent Miele <vincent.miele@univ-lyon1.fr>
+=======
+Authors: John Fitzgerald, Catherine Matias, Vincent Miele
+  
+Maintainer: John Fitzgerald <fitzgeraldj@maths.ox.ac.uk>
+>>>>>>> dynsbmmeta-cp/master
 }
 \examples{
 ####################
@@ -42,61 +71,106 @@ Maintainer: Vincent Miele <vincent.miele@univ-lyon1.fr>
 data(simdataT5Q4N40binary)
 
 ## estimation for Q=1..5 groups
+<<<<<<< HEAD
 list.dynsbm <- select.dynsbm(simdataT5Q4N40binary, 
+=======
+list.dynsbmmeta <- select.dynsbmmeta(simdataT5Q4N40binary, 
+>>>>>>> dynsbmmeta-cp/master
 				Qmin=1, Qmax=5, edge.type="binary", nstart=1)
 				
 \dontrun{
 ## better to use nstart>1 starting points
 ## but estimation can take 1-2 minutes
+<<<<<<< HEAD
 list.dynsbm <- select.dynsbm(simdataT5Q4N40binary, 
+=======
+list.dynsbmmeta <- select.dynsbmmeta(simdataT5Q4N40binary, 
+>>>>>>> dynsbmmeta-cp/master
 				Qmin=1, Qmax=5, edge.type="binary", nstart=25)
 }
 
 ## selection of Q=4
+<<<<<<< HEAD
 dynsbm <- list.dynsbm[[4]]
 
 ## plotting intra/inter connectivity patterns
 connectivity.plot(dynsbm, simdataT5Q4N40binary)
+=======
+dynsbmmeta <- list.dynsbmmeta[[4]]
+
+## plotting intra/inter connectivity patterns
+connectivity.plot(dynsbmmeta, simdataT5Q4N40binary)
+>>>>>>> dynsbmmeta-cp/master
 
 ####################
 ## 2 - continuous case
 data(simdataT5Q4N40continuous)
 
 ## estimation for Q=1..5 groups
+<<<<<<< HEAD
 list.dynsbm <- select.dynsbm(simdataT5Q4N40continuous, 
+=======
+list.dynsbmmeta <- select.dynsbmmeta(simdataT5Q4N40continuous, 
+>>>>>>> dynsbmmeta-cp/master
 				Qmin=1, Qmax=5, edge.type="continuous", nstart=1)
 						
 \dontrun{
 ## better to use nstart>1 starting points
 ## but estimation can take 1-2 minutes
+<<<<<<< HEAD
 list.dynsbm <- select.dynsbm(simdataT5Q4N40continuous, 
+=======
+list.dynsbmmeta <- select.dynsbmmeta(simdataT5Q4N40continuous, 
+>>>>>>> dynsbmmeta-cp/master
 				Qmin=1, Qmax=5, edge.type="continuous", nstart=25)
 }
 
 ## selection of Q=4
+<<<<<<< HEAD
 dynsbm <- list.dynsbm[[4]]
 
 ## plotting intra/inter connectivity patterns
 connectivity.plot(dynsbm, simdataT5Q4N40continuous)
+=======
+dynsbmmeta <- list.dynsbmmeta[[4]]
+
+## plotting intra/inter connectivity patterns
+connectivity.plot(dynsbmmeta, simdataT5Q4N40continuous)
+>>>>>>> dynsbmmeta-cp/master
 
 ####################
 ## 3 - discrete case
 data(simdataT5Q4N40discrete)
 
 ## estimation for Q=1..5 groups
+<<<<<<< HEAD
 list.dynsbm <- select.dynsbm(simdataT5Q4N40discrete, 
+=======
+list.dynsbmmeta <- select.dynsbmmeta(simdataT5Q4N40discrete, 
+>>>>>>> dynsbmmeta-cp/master
 				Qmin=1, Qmax=5, edge.type="discrete", K=4, nstart=1)
 									
 \dontrun{
 ## better to use nstart>1 starting points
 ## but estimation can take 1-2 minutes
+<<<<<<< HEAD
 list.dynsbm <- select.dynsbm(simdataT5Q4N40discrete, 
+=======
+list.dynsbmmeta <- select.dynsbmmeta(simdataT5Q4N40discrete, 
+>>>>>>> dynsbmmeta-cp/master
 				Qmin=1, Qmax=5, edge.type="discrete", K=4, nstart=25)
 }
 
 ## selection of Q=4
+<<<<<<< HEAD
 dynsbm <- list.dynsbm[[4]]
 
 ## plotting intra/inter connectivity patterns
 connectivity.plot(dynsbm, simdataT5Q4N40discrete)
+=======
+dynsbmmeta <- list.dynsbmmeta[[4]]
+
+## plotting intra/inter connectivity patterns
+connectivity.plot(dynsbmmeta, simdataT5Q4N40discrete)
+>>>>>>> dynsbmmeta-cp/master
 }

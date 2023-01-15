@@ -1,6 +1,7 @@
 \name{adjacency.plot}
 \alias{adjacency.plot}
 \title{
+<<<<<<< HEAD
 Heatmap plot of the reorganized  adjacency matrices associated to a dynamic stochastic block model.
 }
 \description{  
@@ -12,6 +13,19 @@ adjacency.plot(dynsbm, Y, present=NULL, col=heat.colors(9))
 }
 \arguments{
   \item{dynsbm}{An object of class \code{dynsbm} retrieved with the function \code{select.dynsbm}.}
+=======
+Heatmap plot of the reorganized  adjacency matrices associated to a dynamic stochastic block model with metadata.
+}
+\description{  
+Heatmap plot of the adjacency matrices with rows/columns reorganized according to
+the group membership  associated to a dynamic stochastic block model with metadata.
+}
+\usage{
+adjacency.plot(dysbmmeta, Y, present=NULL, col=heat.colors(9))
+}
+\arguments{
+  \item{dysbmmeta}{An object of class \code{dysbmmeta} retrieved with the function \code{select.dysbmmeta}.}
+>>>>>>> dynsbmmeta-cp/master
   \item{Y}{An object of class \code{array} of dimension (T x N x N) containing T adjacency matrices of size (N x N), where N is the number of nodes in the network and T is the number of time points.}
   \item{present}{\code{NULL} or an object of class \code{matrix} of size (N x T)
     containing the presence/absence (coded with 1/0 respectively) of
@@ -24,9 +38,15 @@ The T adjacency matrices are represented. The row/lines are reordered following 
 The reordering is independent for each time step. The adjacency matrices
 do not contain the row/columns corresponding to absent nodes.
 
+<<<<<<< HEAD
 If \code{dynsbm} was estimated with \code{edge.type=="binary"}, the
 matrices cells are colored in white for value O or in the first color of the
 \code{col} argument vector for value 1. If \code{dynsbm} was estimated
+=======
+If \code{dysbmmeta} was estimated with \code{edge.type=="binary"}, the
+matrices cells are colored in white for value O or in the first color of the
+\code{col} argument vector for value 1. If \code{dysbmmeta} was estimated
+>>>>>>> dynsbmmeta-cp/master
 with \code{edge.type=="discrete"} or \code{edge.type=="continuous"}, the
 matrices cells are colored with a colored gradient for value >0.
 }
@@ -43,69 +63,118 @@ https://arxiv.org/abs/1701.01355
 \author{
 Authors: Catherine Matias, Vincent Miele
   
+<<<<<<< HEAD
 Maintainer: Vincent Miele <vincent.miele@univ-lyon1.fr>
 }
+=======
+Maintainer: John Fitzgerald <fitzgeraldj@maths.ox.ac.uk>}
+>>>>>>> dynsbmmeta-cp/master
 \examples{
 ####################
 ## 1 - binary case
 data(simdataT5Q4N40binary)
 
 ## estimation for Q=1..5 groups
+<<<<<<< HEAD
 list.dynsbm <- select.dynsbm(simdataT5Q4N40binary, 
+=======
+list.dysbmmeta <- select.dysbmmeta(simdataT5Q4N40binary, 
+>>>>>>> dynsbmmeta-cp/master
 				Qmin=1, Qmax=5, edge.type="binary", nstart=1)
 				
 \dontrun{
 ## better to use nstart>1 starting points
 ## but estimation can take 1-2 minutes
+<<<<<<< HEAD
 list.dynsbm <- select.dynsbm(simdataT5Q4N40binary, 
+=======
+list.dysbmmeta <- select.dysbmmeta(simdataT5Q4N40binary, 
+>>>>>>> dynsbmmeta-cp/master
 				Qmin=1, Qmax=5, edge.type="binary", nstart=25)
 }
 
 ## selection of Q=4
+<<<<<<< HEAD
 dynsbm <- list.dynsbm[[4]]
 
 ## plotting intra/inter connectivity patterns
 adjacency.plot(dynsbm, simdataT5Q4N40binary)
+=======
+dysbmmeta <- list.dysbmmeta[[4]]
+
+## plotting intra/inter connectivity patterns
+adjacency.plot(dysbmmeta, simdataT5Q4N40binary)
+>>>>>>> dynsbmmeta-cp/master
 
 ####################
 ## 2 - continuous case
 data(simdataT5Q4N40continuous)
 
 ## estimation for Q=1..5 groups
+<<<<<<< HEAD
 list.dynsbm <- select.dynsbm(simdataT5Q4N40continuous, 
+=======
+list.dysbmmeta <- select.dysbmmeta(simdataT5Q4N40continuous, 
+>>>>>>> dynsbmmeta-cp/master
 				Qmin=1, Qmax=5, edge.type="continuous", nstart=1)
 						
 \dontrun{
 ## better to use nstart>1 starting points
 ## but estimation can take 1-2 minutes
+<<<<<<< HEAD
 list.dynsbm <- select.dynsbm(simdataT5Q4N40continuous, 
+=======
+list.dysbmmeta <- select.dysbmmeta(simdataT5Q4N40continuous, 
+>>>>>>> dynsbmmeta-cp/master
 				Qmin=1, Qmax=5, edge.type="continuous", nstart=25)
 }
 
 ## selection of Q=4
+<<<<<<< HEAD
 dynsbm <- list.dynsbm[[4]]
 
 ## plotting intra/inter connectivity patterns
 adjacency.plot(dynsbm, simdataT5Q4N40continuous)
+=======
+dysbmmeta <- list.dysbmmeta[[4]]
+
+## plotting intra/inter connectivity patterns
+adjacency.plot(dysbmmeta, simdataT5Q4N40continuous)
+>>>>>>> dynsbmmeta-cp/master
 
 ####################
 ## 3 - discrete case
 data(simdataT5Q4N40discrete)
 
 ## estimation for Q=1..5 groups
+<<<<<<< HEAD
 list.dynsbm <- select.dynsbm(simdataT5Q4N40discrete, 
+=======
+list.dysbmmeta <- select.dysbmmeta(simdataT5Q4N40discrete, 
+>>>>>>> dynsbmmeta-cp/master
 				Qmin=1, Qmax=5, edge.type="discrete", K=4, nstart=1)
 									
 \dontrun{
 ## better to use nstart>1 starting points
 ## but estimation can take 1-2 minutes
+<<<<<<< HEAD
 list.dynsbm <- select.dynsbm(simdataT5Q4N40discrete, 
+=======
+list.dysbmmeta <- select.dysbmmeta(simdataT5Q4N40discrete, 
+>>>>>>> dynsbmmeta-cp/master
 				Qmin=1, Qmax=5, edge.type="discrete", K=4, nstart=25)
 }
 
 ## selection of Q=4
+<<<<<<< HEAD
 dynsbm <- list.dynsbm[[4]]
 
 ## plotting intra/inter connectivity patterns
 adjacency.plot(dynsbm, simdataT5Q4N40discrete)
+=======
+dysbmmeta <- list.dysbmmeta[[4]]
+
+## plotting intra/inter connectivity patterns
+adjacency.plot(dysbmmeta, simdataT5Q4N40discrete)
+>>>>>>> dynsbmmeta-cp/master
 }

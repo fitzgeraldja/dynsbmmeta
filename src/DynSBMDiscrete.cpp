@@ -1,18 +1,32 @@
 /*
+<<<<<<< HEAD
     This file is part of dynsbm.
 
     dysbm is free software: you can redistribute it and/or modify
+=======
+    This file is part of dynsbmmeta.
+
+    dynsbmmeta is free software: you can redistribute it and/or modify
+>>>>>>> dynsbmmeta-cp/master
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
 
+<<<<<<< HEAD
     dynsbm is distributed in the hope that it will be useful,
+=======
+    dynsbmmeta is distributed in the hope that it will be useful,
+>>>>>>> dynsbmmeta-cp/master
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
+<<<<<<< HEAD
     along with dynsbm.  If not, see <http://www.gnu.org/licenses/>
+=======
+    along with dynsbmmeta.  If not, see <http://www.gnu.org/licenses/>
+>>>>>>> dynsbmmeta-cp/master
  */
 #include<DynSBMDiscrete.h>
 namespace dynsbm{
@@ -28,6 +42,7 @@ namespace dynsbm{
     for(int t=0;t<_t;t++){// symmetrize+normalize
       for(int q=(_isdirected?0:1);q<_q;q++){
         for(int l=0;l<q;l++){
+<<<<<<< HEAD
 	  double summultinomprobaql = 0.;
 	  for(int k=0;k<_k;k++) summultinomprobaql += _multinomprobaql[t][q][l][k];
 	  if (summultinomprobaql>0)
@@ -45,15 +60,40 @@ namespace dynsbm{
 		_multinomprobaql[t][q][l][k] = _multinomprobaql[t][q][l][k]/summultinomprobaql;
 	      }
 	  }      
+=======
+          double summultinomprobaql = 0.;
+          for(int k=0;k<_k;k++) summultinomprobaql += _multinomprobaql[t][q][l][k];
+          if (summultinomprobaql>0)
+            for(int k=0;k<_k;k++){
+              _multinomprobaql[t][q][l][k] = _multinomprobaql[t][q][l][k]/summultinomprobaql;
+              if(!_isdirected) _multinomprobaql[t][l][q][k] = _multinomprobaql[t][q][l][k];
+	          }
+	      }        	
+        if(_isdirected)
+          for(int l=q+1;l<_q;l++){
+            double summultinomprobaql = 0.;
+            for(int k=0;k<_k;k++) summultinomprobaql += _multinomprobaql[t][q][l][k];
+            if (summultinomprobaql>0)
+              for(int k=0;k<_k;k++){
+                _multinomprobaql[t][q][l][k] = _multinomprobaql[t][q][l][k]/summultinomprobaql;
+              }
+          }      
+>>>>>>> dynsbmmeta-cp/master
       }
     }
     for(int q=0;q<_q;q++){// symmetrize+normalize
       double summultinomprobaqq = 0.;
       for(int k=0;k<_k;k++) summultinomprobaqq += _multinomprobaql[0][q][q][k];
       if(summultinomprobaqq>0)
+<<<<<<< HEAD
 	for(int k=0;k<_k;k++) _multinomprobaql[0][q][q][k] = _multinomprobaql[0][q][q][k]/summultinomprobaqq;    
       for(int t=1;t<_t;t++)
         for(int k=0;k<_k;k++) _multinomprobaql[t][q][q][k] =  _multinomprobaql[0][q][q][k];      
+=======
+        for(int k=0;k<_k;k++) _multinomprobaql[0][q][q][k] = _multinomprobaql[0][q][q][k]/summultinomprobaqq;    
+        for(int t=1;t<_t;t++)
+          for(int k=0;k<_k;k++) _multinomprobaql[t][q][q][k] =  _multinomprobaql[0][q][q][k];      
+>>>>>>> dynsbmmeta-cp/master
     }
     correctMultinomproba();
   }

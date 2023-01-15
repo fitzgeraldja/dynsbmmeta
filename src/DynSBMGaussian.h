@@ -21,13 +21,22 @@
 #include <Rmath.h>
 namespace dynsbm{
   class DynSBMGaussian
+<<<<<<< HEAD
     : public DynSBM<double>{
+=======
+    : public DynSBM<double,std::vector<double>>{
+>>>>>>> dynsbmmeta-cp/master
   protected:
     double*** _muql;
     double* _sigma;
   public:
+<<<<<<< HEAD
     DynSBMGaussian(int T, int N, int Q, const Rcpp::IntegerMatrix & present, bool isdirected = false, bool withselfloop = false)
       : DynSBM<double>(T,N,Q,present,isdirected,withselfloop) {
+=======
+    DynSBMGaussian(int T, int N, int Q, int S, const Rcpp::IntegerMatrix & present, const std::vector<std::vector<std::vector<int>>> & metapresent, const std::vector<std::string> & metatypes, const std::vector<int> & metadims, const std::vector<double> & metatuning, bool isdirected = false, bool withselfloop = false)
+      : DynSBM<double,std::vector<double>>(T,N,Q,S,present,metapresent,metatypes,metadims,metatuning,isdirected,withselfloop) {
+>>>>>>> dynsbmmeta-cp/master
       allocate3D(_muql,_t,_q,_q);
       _sigma = new double[_t];
     }

@@ -18,8 +18,13 @@
 #define DYNSBM_DYNSBMDISCRETE_H
 #include<DynSBM.h>
 namespace dynsbm{
+<<<<<<< HEAD
   class DynSBMDiscrete
     : public DynSBM<int>{
+=======
+  class DynSBMDiscrete // NB this isn't actually the truncated Poisson version they talk about - could say it's some approximation, but really different (as doesn't require additivity of categories etc)
+    : public DynSBM<int,std::vector<double>>{
+>>>>>>> dynsbmmeta-cp/master
   protected:
     int _k; // Y has integer values in [1,2,...K]
     double**** _multinomprobaql; // trick: store log(multinomprobaql)
@@ -28,8 +33,13 @@ namespace dynsbm{
       _multinomprobaql[t][q][l][y-1] += proba; // y is an integer value in [1,2,...K]
     }
   public:
+<<<<<<< HEAD
     DynSBMDiscrete(int T, int N, int Q, const Rcpp::IntegerMatrix & present, bool isdirected = false, bool withselfloop = false)
       : DynSBM<int>(T,N,Q,present,isdirected,withselfloop) {
+=======
+    DynSBMDiscrete(int T, int N, int Q, int S, const Rcpp::IntegerMatrix & present, const std::vector<std::vector<std::vector<int>>> & metapresent, const std::vector<std::string> & metatypes, const std::vector<int> & metadims, const std::vector<double> & metatuning, bool isdirected = false, bool withselfloop = false)
+      : DynSBM<int,std::vector<double>>(T,N,Q,S,present,metapresent,metatypes,metadims,metatuning,isdirected,withselfloop) {
+>>>>>>> dynsbmmeta-cp/master
     }
     ~DynSBMDiscrete(){
       deallocate4D(_multinomprobaql,_t,_q,_q,_k);
@@ -43,10 +53,17 @@ namespace dynsbm{
     }
     virtual double logDensity(int t, int q, int l, int y) const{
       if(y==0){
+<<<<<<< HEAD
 	return(_betaql[t][q][l]); // trick: which is actually log(_betaql[t][q][l]))
       } else{
 	// NB: y is an integer value in [1,2,...K]
 	return(_1minusbetaql[t][q][l] // trick: which is actually log(1-_betaql[t][q][l]))
+=======
+	      return(_betaql[t][q][l]); // trick: which is actually log(_betaql[t][q][l]))
+      } else{
+        // NB: y is an integer value in [1,2,...K]
+        return(_1minusbetaql[t][q][l] // trick: which is actually log(1-_betaql[t][q][l]))
+>>>>>>> dynsbmmeta-cp/master
 	       //+ log(_multinomprobaql[t][q][l][y-1]));
 	       + _multinomprobaql[t][q][l][y-1]); // trick: which is actually log(_multinomprobaql[t][q][l][y-1])
       }
@@ -58,12 +75,21 @@ namespace dynsbm{
 
   class DynSBMDiscreteAddEventFunctor{
     DynSBMDiscrete& _dynsbm;
+<<<<<<< HEAD
   public:
     DynSBMDiscreteAddEventFunctor(DynSBMDiscrete& dynsbm)
       : _dynsbm(dynsbm) {}
     void operator()(double proba, int y, int t, int q, int l){
       _dynsbm._multinomprobaql[t][q][l][y-1] += proba; // y is an integer value in [1,2,...K]
     }
+=======
+    public:
+      DynSBMDiscreteAddEventFunctor(DynSBMDiscrete& dynsbm)
+        : _dynsbm(dynsbm) {}
+      void operator()(double proba, int y, int t, int q, int l){
+        _dynsbm._multinomprobaql[t][q][l][y-1] += proba; // y is an integer value in [1,2,...K]
+      }
+>>>>>>> dynsbmmeta-cp/master
   };
 }
 #endif

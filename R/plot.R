@@ -1,16 +1,27 @@
+<<<<<<< HEAD
 # This file is part of dynsbm.
 
 # dysbm is free software: you can redistribute it and/or modify
+=======
+# This file is part of dynsbmmeta.
+
+# dynsbmmeta is free software: you can redistribute it and/or modify
+>>>>>>> dynsbmmeta-cp/master
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 
+<<<<<<< HEAD
 # dynsbm is distributed in the hope that it will be useful,
+=======
+# dynsbmmeta is distributed in the hope that it will be useful,
+>>>>>>> dynsbmmeta-cp/master
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 
 # You should have received a copy of the GNU General Public License
+<<<<<<< HEAD
 # along with dynsbm.  If not, see <http://www.gnu.org/licenses/>
 
 
@@ -19,6 +30,16 @@ alluvial.plot <- function(dynsbm, timestep.abbrev="T", minimal.flow=1, only.pres
     if (! "dynsbm" %in% class(dynsbm)) stop("Object must be of class 'dynsbm'")
     T <- ncol(dynsbm$membership)
     membership <- dynsbm$membership
+=======
+# along with dynsbmmeta.  If not, see <http://www.gnu.org/licenses/>
+
+
+alluvial.plot <- function(dynsbmmeta, timestep.abbrev="T", minimal.flow=1, only.present=FALSE){
+                                        #library(riverplot)
+    if (! "dynsbmmeta" %in% class(dynsbmmeta)) stop("Object must be of class 'dynsbmmeta'")
+    T <- ncol(dynsbmmeta$membership)
+    membership <- dynsbmmeta$membership
+>>>>>>> dynsbmmeta-cp/master
     if(only.present) membership[membership==0] <- NA
     edges <- c()
     for (t in 1:(T-1)){
@@ -73,6 +94,7 @@ gradient.polygon <- function(x1,x2,y1,y2,col1,col2,ylim.low){
     }
 }
 
+<<<<<<< HEAD
 connectivity.plot <- function(dynsbm, Y){
     if (! "dynsbm" %in% class(dynsbm)) stop("Object must be of class 'dynsbm'")
                                         #library(RColorBrewer)
@@ -80,6 +102,15 @@ connectivity.plot <- function(dynsbm, Y){
     T <- ncol(dynsbm$membership)
     Q <- nrow(dynsbm$trans)
     membership <- dynsbm$membership
+=======
+connectivity.plot <- function(dynsbmmeta, Y){
+    if (! "dynsbmmeta" %in% class(dynsbmmeta)) stop("Object must be of class 'dynsbmmeta'")
+                                        #library(RColorBrewer)
+    directed <- dynsbmmeta$directed
+    T <- ncol(dynsbmmeta$membership)
+    Q <- nrow(dynsbmmeta$trans)
+    membership <- dynsbmmeta$membership
+>>>>>>> dynsbmmeta-cp/master
     old.mar <- par()$mar
     par(mar = rep(0.33, 4))
     par(mfrow=c(Q,Q))
@@ -93,7 +124,11 @@ connectivity.plot <- function(dynsbm, Y){
                     d1 <- nrow(subYt)
                     d2 <- ncol(subYt)
                     if(q==l){ #subYt is square
+<<<<<<< HEAD
                         if(dynsbm$self.loop){
+=======
+                        if(dynsbmmeta$self.loop){
+>>>>>>> dynsbmmeta-cp/master
                             this.beta <- sum(subYt>0) / (d1*d1)
                         } else{
                             diag(subYt) <- NA
@@ -110,7 +145,11 @@ connectivity.plot <- function(dynsbm, Y){
         }
     }
     beta[is.na(beta)] <- 0 
+<<<<<<< HEAD
     if(!("gamma" %in% names(dynsbm)) && !("mu" %in% names(dynsbm))){
+=======
+    if(!("gamma" %in% names(dynsbmmeta)) && !("mu" %in% names(dynsbmmeta))){
+>>>>>>> dynsbmmeta-cp/master
         ## binary case  
         for (q in 1:Q){
             for (l in 1:Q){
@@ -124,9 +163,15 @@ connectivity.plot <- function(dynsbm, Y){
             }
         }
     }
+<<<<<<< HEAD
     if("gamma" %in% names(dynsbm)){
         ## discrete case
         K <- dim(dynsbm$gamma)[4]
+=======
+    if("gamma" %in% names(dynsbmmeta)){
+        ## discrete case
+        K <- dim(dynsbmmeta$gamma)[4]
+>>>>>>> dynsbmmeta-cp/master
         for (q in 1:Q){
             for (l in 1:Q){
                 y <- beta[,q,l]
@@ -140,9 +185,15 @@ connectivity.plot <- function(dynsbm, Y){
                         this.t <- rep(0,K+1)
                     } else{
                         if(("matrix" %in% class(subYt)) & q==l){ #subYt is square
+<<<<<<< HEAD
                             if(!dynsbm$self.loop) diag(subYt) <- NA
                         } else{ ## ("integer" %in% class(subYt)==) #subYt is a vector
                             if(!dynsbm$self.loop) subYt <- 0L
+=======
+                            if(!dynsbmmeta$self.loop) diag(subYt) <- NA
+                        } else{ ## ("integer" %in% class(subYt)==) #subYt is a vector
+                            if(!dynsbmmeta$self.loop) subYt <- 0L
+>>>>>>> dynsbmmeta-cp/master
                         }
                         this.t <- (table(c(subYt,0:K))-1)/length(subYt[!is.na(subYt)])
                         this.t <- this.t[order(as.integer(names(this.t)))][c(2:(K+1),1)]
@@ -159,16 +210,26 @@ connectivity.plot <- function(dynsbm, Y){
             }
         }
     }
+<<<<<<< HEAD
     if("mu" %in% names(dynsbm)){
+=======
+    if("mu" %in% names(dynsbmmeta)){
+>>>>>>> dynsbmmeta-cp/master
         connec <- array(0, c(T,Q,Q))
         for (q in 1:Q){
             for (l in 1:Q){
                 connec[,q,l] <- sapply(1:T, FUN=function(t){
                     subYt <- Y[t, which(membership[,t]==q),which(membership[,t]==l)]
                     if(("matrix" %in% class(subYt)) & q==l){ #subYt is square
+<<<<<<< HEAD
                         if(!dynsbm$self.loop) diag(subYt) <- NA
                     } else{ # ("integer" %in% class(subYt)==) #subYt is a vector
                         if(!dynsbm$self.loop) subYt <- 0
+=======
+                        if(!dynsbmmeta$self.loop) diag(subYt) <- NA
+                    } else{ # ("integer" %in% class(subYt)==) #subYt is a vector
+                        if(!dynsbmmeta$self.loop) subYt <- 0
+>>>>>>> dynsbmmeta-cp/master
                     }
                     if (length(subYt[subYt>0])){
                         mean(subYt[subYt>0],na.rm=T)
@@ -198,24 +259,39 @@ connectivity.plot <- function(dynsbm, Y){
     par(mfrow=c(1,1))
 }
 
+<<<<<<< HEAD
 adjacency.plot <- function(dynsbm, Y, present=NULL, col=heat.colors(9)){
+=======
+adjacency.plot <- function(dynsbmmeta, Y, present=NULL, col=heat.colors(9)){
+>>>>>>> dynsbmmeta-cp/master
     if (is.null(present)){
         present <- matrix(0L,dim(Y)[2],dim(Y)[1])    
         for (t in 1:dim(Y)[1])
             present[union(which(apply(Y[t,,],1,FUN=function(v) sum(v>0))>0),which(apply(Y[t,,],2,FUN=function(v) sum(v>0))>0)),t] <- 1    		
     }
     ## Alternative: col <- gray.colors(10, start=0.8, end=0.)
+<<<<<<< HEAD
     if(!("gamma" %in% names(dynsbm)) && !("mu" %in% names(dynsbm))){
+=======
+    if(!("gamma" %in% names(dynsbmmeta)) && !("mu" %in% names(dynsbmmeta))){
+>>>>>>> dynsbmmeta-cp/master
         col=col[1]
     }
     par(mfrow=c(min(dim(Y)[1],3), ceiling(dim(Y)[1]/(min(dim(Y)[1],3)))))
     par(mar = rep(0.5,4))
     for(t in 1:dim(Y)[1]){
         Yt <- Y[t,,]
+<<<<<<< HEAD
         index <- which(dynsbm$membership[,t]>0)
         subYt <- Yt[index,index]
         if(is.matrix(subYt)){
             membershipt <- dynsbm$membership[,t]
+=======
+        index <- which(dynsbmmeta$membership[,t]>0)
+        subYt <- Yt[index,index]
+        if(is.matrix(subYt)){
+            membershipt <- dynsbmmeta$membership[,t]
+>>>>>>> dynsbmmeta-cp/master
             membershipt <- membershipt[which(membershipt>0)]
             image(t(subYt[rev(order(membershipt)), order(membershipt)]), xaxt = "n", xlab = "", yaxt = "n", ylab = "",
                   col=c("white",col))            

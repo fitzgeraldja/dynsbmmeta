@@ -1,0 +1,8 @@
+setup.py
+src/proj1_package/__init__.py
+src/proj1_package/compare_parts.py
+src/proj1_package/dynsbmmeta.py
+src/proj1_package.egg-info/PKG-INFO
+src/proj1_package.egg-info/SOURCES.txt
+src/proj1_package.egg-info/dependency_links.txt
+src/proj1_package.egg-info/top_level.txt

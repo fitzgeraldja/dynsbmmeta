@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 useDynLib(dynsbm, .registration = TRUE)
+=======
+useDynLib(dynsbmmeta, .registration = TRUE)
+>>>>>>> dynsbmmeta-cp/master
 import(Rcpp)
 import(riverplot)
 import(RColorBrewer)
@@ -9,7 +13,12 @@ importFrom("graphics", "axis", "legend", "lines", "par", "plot", "polygon")
 importFrom("stats", "heatmap", "kmeans")
 importFrom("grDevices", "heat.colors")
 importFrom("graphics", "abline", "image")
+<<<<<<< HEAD
 export(select.dynsbm)
+=======
+export(select.dynsbmmeta)
+export(compute.icl)
+>>>>>>> dynsbmmeta-cp/master
 export(alluvial.plot)
 export(connectivity.plot)
 export(adjacency.plot)
