@@ -3,7 +3,7 @@ R package defining a dynamic stochastic block model for temporal networks with n
 
 This builds on the CRAN package dynsbm as a base, significantly increasing functionality both for conventional dynamic networks by allowing
 - Poisson weighted edges;
-- Degree-correction [coding in progress];
+- Degree-correction;
 - Intermediary saves;
 - Return of estimated node marginals;
 - Link prediction [in Python];
